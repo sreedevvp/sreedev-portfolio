@@ -1,0 +1,33 @@
+# Dependencies and Next.js build output
+node_modules/
+.next/
+out/
+dist/
+.dist/
+
+# Local Vercel state and environment secrets
+.vercel/
+.env*
+!.env.example
+
+# Logs, test output, and temporary files
+*.log
+test-results/
+tmp/
+
+# Local browser sessions and design/QA captures
+.chrome-*/
+.motion-reference/
+reference-capture/
+qa-*
+.reference-*
+/*.png
+design-qa.md
+scripts/qa-*.mjs
+
+# Local agent and editor metadata
+.agents/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

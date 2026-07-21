@@ -1953,7 +1953,7 @@ body > main.route-enter {
   width: min(100%, 760px);
   max-width: 760px;
   font-size: clamp(60px, 7.7vw, 91px);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -5px;
 }
 

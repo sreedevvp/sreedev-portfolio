@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 import CreativeWorksGallery, { creativeWorks } from "./CreativeWorksGallery";
@@ -16,6 +15,7 @@ const projects = [
     copy:
       "A live anonymous messaging app built for social sharing, link-based messages, and reply sharing across mobile platforms.",
     tags: ["Social", "Mobile app", "Live"],
+    href: "https://play.google.com/store/apps/details?id=com.ano.ngl&hl=en_IN&pli=1",
     featured: true,
   },
   {
@@ -35,6 +35,7 @@ const projects = [
     copy:
       "An AI-powered living professional profile that organises experiences, projects, goals, and career decisions.",
     tags: ["AI", "Career", "Platform"],
+    href: "https://www.behance.net/gallery/252131697/Clarityai-AI-Powered-Career-Clarity-SaaS-Platform",
   },
   {
     slug: "spense",
@@ -44,15 +45,7 @@ const projects = [
     copy:
       "A fintech app that converts money spent into time worked and classifies transactions as useful or wasted spend.",
     tags: ["Fintech", "Mobile app", "Behaviour"],
-  },
-  {
-    slug: "mandate",
-    title: "Mandate",
-    category: "product",
-    cover: "/projects/mandate-cover.png",
-    copy:
-      "A financial control platform for supervising AI-driven permissions, approvals, and automated transactions.",
-    tags: ["Fintech", "AI", "Control"],
+    href: "https://www.behance.net/gallery/252503593/Spense-A-Time-Based-Finance-App",
   },
   {
     slug: "clarity-landing",
@@ -62,6 +55,7 @@ const projects = [
     copy:
       "A premium marketing website that communicates the Clarity.ai vision, product features, and user benefits.",
     tags: ["AI", "Landing", "Marketing"],
+    href: "https://www.behance.net/gallery/252709209/Landing-Page-Clarityai-Career-SaaS-Platform",
   },
   {
     slug: "mandate-landing",
@@ -80,6 +74,7 @@ const projects = [
     copy:
       "An internship design exploration presenting the community, chapters, achievements, and learning ecosystem.",
     tags: ["Community", "Internship", "Concept"],
+    href: "https://www.behance.net/gallery/252914561/Learn-Conceptual-Landing-Page-Design",
   },
   {
     slug: "iedc-kmct",
@@ -89,6 +84,7 @@ const projects = [
     copy:
       "An implemented dark visual website showcasing the organisation, events, team, and student community.",
     tags: ["Community", "Landing", "Implemented"],
+    href: "https://www.behance.net/gallery/252915205/Building-Together-IEDC-KMCT-Web-Experience",
   },
   {
     slug: "crumbs",
@@ -98,6 +94,7 @@ const projects = [
     copy:
       "A playful premium cookie identity spanning logo, packaging, patterns, mockups, and social media.",
     tags: ["Brand identity", "Packaging", "Social"],
+    href: "https://www.behance.net/gallery/252762183/Crumbs-Cookie-Brand-Identity-Packaging-Design",
   },
   {
     slug: "kmct-silver-jubilee",
@@ -107,6 +104,7 @@ const projects = [
     copy:
       "A commemorative identity created for KMCT Engineering College, celebrating 25 years through a distinctive anniversary emblem.",
     tags: ["Logo design", "Anniversary identity", "KMCT"],
+    href: "https://www.instagram.com/p/DV6ceb8E26T/?utm_source=ig_web_button_share_sheet",
   },
   {
     slug: "bestado-logo",
@@ -116,6 +114,7 @@ const projects = [
     copy:
       "A bold, approachable logo identity designed for Bestado, an online shopping store.",
     tags: ["Logo design", "E-commerce", "Brand identity"],
+    href: "https://www.instagram.com/p/DJ6YujbSEUV/?utm_source=ig_web_button_share_sheet",
   },
 ];
 
@@ -141,12 +140,16 @@ function ProjectTags({ tags }) {
 }
 
 function ProjectCard({ project }) {
+  const href = project.href ?? `/works#project-${project.slug}`;
+  const externalProps = project.href ? { target: "_blank", rel: "noreferrer" } : {};
+
   return (
     <article className={styles.card} id={`project-${project.slug}`}>
-      <Link
+      <a
         className={styles.cardLink}
-        href={`/works#project-${project.slug}`}
+        href={href}
         aria-label={`View ${project.title} project`}
+        {...externalProps}
       >
         <div className={styles.cardMedia}>
           <Image
@@ -166,7 +169,7 @@ function ProjectCard({ project }) {
           </div>
           <ProjectTags tags={project.tags} />
         </div>
-      </Link>
+      </a>
     </article>
   );
 }
@@ -241,10 +244,12 @@ export default function ProjectGrid() {
               </div>
             </dl>
           </div>
-          <Link
+          <a
             className={styles.featuredMedia}
-            href="/works#project-ano"
+            href={featuredProject.href ?? "/works#project-ano"}
             aria-label="View ANO.APP project"
+            target="_blank"
+            rel="noreferrer"
           >
             <Image
               src={featuredProject.cover}
@@ -256,7 +261,7 @@ export default function ProjectGrid() {
             <span className={styles.cardArrow} aria-hidden="true">
               <FiArrowUpRight />
             </span>
-          </Link>
+          </a>
         </article>
       )}
 

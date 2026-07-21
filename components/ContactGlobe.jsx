@@ -8,6 +8,10 @@ import {
   FaLocationDot,
   FaWhatsapp,
 } from "react-icons/fa6";
+import {
+  EMAIL_CONTACT_URL,
+  WHATSAPP_CONTACT_URL,
+} from "../lib/contactLinks";
 
 const HOME = {
   city: "Kozhikode",
@@ -430,12 +434,12 @@ export default function ContactGlobe() {
           </p>
         </div>
         <div className="contact-actions reveal delay-3">
-          <a className="primary-btn compact" href="mailto:vpsreedev24@gmail.com">
+          <a className="primary-btn compact" href={EMAIL_CONTACT_URL}>
             Email me
           </a>
           <a
             className="whatsapp"
-            href="https://wa.me/918606425698"
+            href={WHATSAPP_CONTACT_URL}
             target="_blank"
             rel="noreferrer"
           >

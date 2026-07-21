@@ -13,6 +13,7 @@ import {
   SiWebflow,
 } from "react-icons/si";
 import styles from "./AboutHero.module.css";
+import { EMAIL_CONTACT_URL } from "../lib/contactLinks";
 
 const greetings = [
   "Hello",
@@ -193,11 +194,11 @@ export default function AboutHero() {
         <div className={styles.actions}>
           <a
             className={styles.callButton}
-            href="mailto:vpsreedev24@gmail.com?subject=Portfolio%20call"
+            href={EMAIL_CONTACT_URL}
           >
             Contact
           </a>
-          <a className={styles.email} href="mailto:vpsreedev24@gmail.com">
+          <a className={styles.email} href={EMAIL_CONTACT_URL}>
             vpsreedev24@gmail.com
           </a>
           <span className={styles.replyNote}>

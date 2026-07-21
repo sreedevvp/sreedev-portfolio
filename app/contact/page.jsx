@@ -10,6 +10,10 @@ import { FiArrowUpRight, FiClock, FiMail, FiMapPin } from "react-icons/fi";
 import ContactForm from "../../components/ContactForm";
 import AskAiBar from "../../components/AskAiBar";
 import styles from "./Contact.module.css";
+import {
+  EMAIL_CONTACT_URL,
+  WHATSAPP_CONTACT_URL,
+} from "../../lib/contactLinks";
 
 export const metadata = {
   title: "Contact",
@@ -21,7 +25,7 @@ const socialLinks = [
   {
     label: "WhatsApp",
     handle: "+91 86064 25698",
-    href: "https://wa.me/918606425698?text=Hi%20Sreedev%2C%20I%27d%20like%20to%20discuss%20a%20project.",
+    href: WHATSAPP_CONTACT_URL,
     icon: FaWhatsapp,
     tone: "whatsapp",
   },
@@ -91,7 +95,7 @@ export default function ContactPage() {
             </p>
 
             <div className={styles.details}>
-              <a href="mailto:vpsreedev24@gmail.com">
+              <a href={EMAIL_CONTACT_URL}>
                 <FiMail aria-hidden="true" />
                 <span>
                   <small>Email</small>
@@ -116,7 +120,7 @@ export default function ContactPage() {
 
             <a
               className={styles.whatsappCta}
-              href="https://wa.me/918606425698?text=Hi%20Sreedev%2C%20I%27d%20like%20to%20discuss%20a%20project."
+              href={WHATSAPP_CONTACT_URL}
               target="_blank"
               rel="noreferrer"
             >

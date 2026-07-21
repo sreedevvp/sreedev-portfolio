@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   PiDesktop,
   PiDeviceMobile,
+  PiDeviceRotate,
   PiEnvelopeSimple,
   PiHouseSimple,
   PiSquaresFour,
   PiUserCircle,
+  PiX,
 } from "react-icons/pi";
 import MusicPlayer from "./MusicPlayer";
 
@@ -32,6 +34,9 @@ export default function SiteHeader() {
   const [activeIndex, setActiveIndex] = useState(routeIndex);
   const [isMobileViewer, setIsMobileViewer] = useState(false);
   const [desktopView, setDesktopView] = useState(false);
+  const [siteLoaded, setSiteLoaded] = useState(false);
+  const [mobileDialog, setMobileDialog] = useState(null);
+  const recommendationShown = useRef(false);
 
   useEffect(() => {
     const syncActiveItem = () => {
@@ -52,6 +57,38 @@ export default function SiteHeader() {
     setIsMobileViewer(compactScreen.matches && touchDevice);
   }, []);
 
+  useEffect(() => {
+    const handleLoaded = () => setSiteLoaded(true);
+
+    if (document.documentElement.dataset.portfolioLoaded === "true") {
+      handleLoaded();
+    }
+
+    window.addEventListener("portfolio:loaded", handleLoaded);
+    return () => window.removeEventListener("portfolio:loaded", handleLoaded);
+  }, []);
+
+  useEffect(() => {
+    if (!siteLoaded || !isMobileViewer || recommendationShown.current) return;
+
+    recommendationShown.current = true;
+    setMobileDialog("recommendation");
+  }, [isMobileViewer, siteLoaded]);
+
+  useEffect(() => {
+    if (mobileDialog !== "rotate") return undefined;
+
+    const dismissWhenLandscape = () => {
+      if (window.matchMedia("(orientation: landscape)").matches) {
+        setMobileDialog(null);
+      }
+    };
+
+    dismissWhenLandscape();
+    window.addEventListener("orientationchange", dismissWhenLandscape);
+    return () => window.removeEventListener("orientationchange", dismissWhenLandscape);
+  }, [mobileDialog]);
+
   const toggleDesktopView = async () => {
     const viewport = document.querySelector('meta[name="viewport"]');
     if (!viewport) return;
@@ -71,15 +108,23 @@ export default function SiteHeader() {
         ? Math.max(window.screen.width, window.screen.height)
         : Math.min(window.screen.width, window.screen.height);
       const desktopScale = Math.min(1, screenWidth / desktopWidth);
+      const interfaceScale = desktopWidth / screenWidth;
 
       viewport.setAttribute(
         "content",
         `width=${desktopWidth}, initial-scale=${desktopScale}`,
       );
       document.documentElement.dataset.desktopView = "true";
+      document.documentElement.style.setProperty(
+        "--desktop-interface-scale",
+        interfaceScale.toString(),
+      );
+      setMobileDialog("rotate");
     } else {
       viewport.setAttribute("content", "width=device-width, initial-scale=1");
       delete document.documentElement.dataset.desktopView;
+      document.documentElement.style.removeProperty("--desktop-interface-scale");
+      setMobileDialog(null);
 
       try {
         window.screen.orientation?.unlock?.();
@@ -154,6 +199,74 @@ export default function SiteHeader() {
           );
         })}
       </nav>
+
+      {mobileDialog && (
+        <div className="mobile-experience-backdrop" role="presentation">
+          <section
+            className="mobile-experience-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-experience-title"
+          >
+            <button
+              className="mobile-experience-close"
+              type="button"
+              aria-label="Close message"
+              onClick={() => setMobileDialog(null)}
+            >
+              <PiX />
+            </button>
+
+            <div className="mobile-experience-icon" aria-hidden="true">
+              {mobileDialog === "rotate" ? <PiDeviceRotate /> : <PiDesktop />}
+            </div>
+
+            <p className="mobile-experience-kicker">
+              {mobileDialog === "rotate" ? "One last move" : "Full experience"}
+            </p>
+            <h2 id="mobile-experience-title">
+              {mobileDialog === "rotate"
+                ? "Rotate your screen."
+                : "This portfolio looks more dope in desktop mode."}
+            </h2>
+            <p className="mobile-experience-copy">
+              {mobileDialog === "rotate"
+                ? "Turn your phone sideways to see the work with more space and detail."
+                : "Switch to the wider layout for the full visual experience, or keep exploring in mobile view."}
+            </p>
+
+            <div className="mobile-experience-actions">
+              {mobileDialog === "recommendation" ? (
+                <>
+                  <button
+                    className="mobile-experience-primary"
+                    type="button"
+                    onClick={toggleDesktopView}
+                  >
+                    <PiDesktop />
+                    Switch to desktop
+                  </button>
+                  <button
+                    className="mobile-experience-secondary"
+                    type="button"
+                    onClick={() => setMobileDialog(null)}
+                  >
+                    Continue mobile
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="mobile-experience-primary"
+                  type="button"
+                  onClick={() => setMobileDialog(null)}
+                >
+                  Got it
+                </button>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </>
   );
 }

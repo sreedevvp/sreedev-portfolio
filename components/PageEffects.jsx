@@ -32,7 +32,9 @@ export default function PageEffects() {
 
       finishTimer = window.setTimeout(() => {
         document.body.style.overflow = previousOverflow;
+        document.documentElement.dataset.portfolioLoaded = "true";
         setLoaded(true);
+        window.dispatchEvent(new CustomEvent("portfolio:loaded"));
       }, holdDuration);
     };
 

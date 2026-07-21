@@ -497,25 +497,6 @@ html[data-desktop-view="true"] .desktop-view-toggle svg {
   padding: 14px;
 }
 
-.mobile-experience-close {
-  position: absolute;
-  top: 18px;
-  right: 8px;
-  display: grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  padding: 0;
-  background: transparent;
-  color: #57575d;
-  cursor: pointer;
-}
-
-.mobile-experience-close svg {
-  width: 15px;
-  height: 15px;
-}
-
 .mobile-experience-kicker {
   margin-bottom: 10px;
   color: #737378;
@@ -593,11 +574,6 @@ html[data-theme="dark"] .mobile-experience-backdrop {
 
 html[data-theme="dark"] .mobile-experience-dialog {
   color: #f4f7ff;
-}
-
-html[data-theme="dark"] .mobile-experience-close {
-  background: rgba(255, 255, 255, 0.08);
-  color: #b9bbc3;
 }
 
 html[data-theme="dark"] .mobile-experience-kicker,

@@ -10,7 +10,6 @@ import {
   PiHouseSimple,
   PiSquaresFour,
   PiUserCircle,
-  PiX,
 } from "react-icons/pi";
 import MusicPlayer from "./MusicPlayer";
 
@@ -126,6 +125,18 @@ export default function SiteHeader() {
 
     const frame = window.requestAnimationFrame(applyDesktopViewport);
     const routeTimer = window.setTimeout(applyDesktopViewport, 180);
+    let rotationTimers = [];
+    const rescaleAfterRotation = () => {
+      rotationTimers.forEach((timer) => window.clearTimeout(timer));
+      window.requestAnimationFrame(() => {
+        applyDesktopViewport();
+        window.scrollTo({ left: 0, top: window.scrollY, behavior: "auto" });
+      });
+      rotationTimers = [
+        window.setTimeout(applyDesktopViewport, 220),
+        window.setTimeout(applyDesktopViewport, 520),
+      ];
+    };
     const viewportObserver = new MutationObserver(() => {
       const viewport = document.querySelector('meta[name="viewport"]');
       if (!viewport?.content.includes(`width=${DESKTOP_VIEW_WIDTH}`)) {
@@ -138,11 +149,14 @@ export default function SiteHeader() {
       childList: true,
       subtree: true,
     });
+    window.addEventListener("orientationchange", rescaleAfterRotation);
 
     return () => {
       window.cancelAnimationFrame(frame);
       window.clearTimeout(routeTimer);
+      rotationTimers.forEach((timer) => window.clearTimeout(timer));
       viewportObserver.disconnect();
+      window.removeEventListener("orientationchange", rescaleAfterRotation);
     };
   }, [desktopView, pathname]);
 
@@ -158,6 +172,13 @@ export default function SiteHeader() {
     dismissWhenLandscape();
     window.addEventListener("orientationchange", dismissWhenLandscape);
     return () => window.removeEventListener("orientationchange", dismissWhenLandscape);
+  }, [mobileDialog]);
+
+  useEffect(() => {
+    if (!mobileDialog) return undefined;
+
+    const autoDismiss = window.setTimeout(() => setMobileDialog(null), 5000);
+    return () => window.clearTimeout(autoDismiss);
   }, [mobileDialog]);
 
   const toggleDesktopView = async () => {
@@ -253,7 +274,13 @@ export default function SiteHeader() {
       </nav>
 
       {mobileDialog && (
-        <div className="mobile-experience-backdrop" role="presentation">
+        <div
+          className="mobile-experience-backdrop"
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setMobileDialog(null);
+          }}
+        >
           <section
             className={`mobile-experience-dialog${
               mobileDialog === "rotate" ? " is-rotate" : ""
@@ -262,15 +289,6 @@ export default function SiteHeader() {
             aria-modal="true"
             aria-labelledby="mobile-experience-title"
           >
-            <button
-              className="mobile-experience-close"
-              type="button"
-              aria-label="Close message"
-              onClick={() => setMobileDialog(null)}
-            >
-              <PiX />
-            </button>
-
             <p className="mobile-experience-kicker">
               {mobileDialog === "rotate" ? "One last move" : "Full experience"}
             </p>
@@ -287,22 +305,13 @@ export default function SiteHeader() {
 
             <div className="mobile-experience-actions">
               {mobileDialog === "recommendation" ? (
-                <>
-                  <button
-                    className="mobile-experience-primary"
-                    type="button"
-                    onClick={toggleDesktopView}
-                  >
-                    Switch to desktop
-                  </button>
-                  <button
-                    className="mobile-experience-secondary"
-                    type="button"
-                    onClick={() => setMobileDialog(null)}
-                  >
-                    Continue mobile
-                  </button>
-                </>
+                <button
+                  className="mobile-experience-primary"
+                  type="button"
+                  onClick={toggleDesktopView}
+                >
+                  Switch to desktop
+                </button>
               ) : (
                 <button
                   className="mobile-experience-primary"

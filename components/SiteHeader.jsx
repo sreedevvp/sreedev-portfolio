@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   PiDesktop,
   PiDeviceMobile,
-  PiDeviceRotate,
   PiEnvelopeSimple,
   PiHouseSimple,
   PiSquaresFour,
@@ -21,6 +20,40 @@ const links = [
   { href: "/works", label: "Works", Icon: PiSquaresFour },
   { href: "/contact", label: "Contact", Icon: PiEnvelopeSimple },
 ];
+
+const VIEW_MODE_KEY = "sreedev-view-mode";
+const DESKTOP_VIEW_WIDTH = 1280;
+
+function applyDesktopViewport() {
+  const viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) return;
+
+  const landscape = window.matchMedia("(orientation: landscape)").matches;
+  const screenWidth = landscape
+    ? Math.max(window.screen.width, window.screen.height)
+    : Math.min(window.screen.width, window.screen.height);
+  const desktopScale = Math.min(1, screenWidth / DESKTOP_VIEW_WIDTH);
+  const interfaceScale = DESKTOP_VIEW_WIDTH / screenWidth;
+
+  viewport.setAttribute(
+    "content",
+    `width=${DESKTOP_VIEW_WIDTH}, initial-scale=${desktopScale}`,
+  );
+  document.documentElement.dataset.desktopView = "true";
+  document.documentElement.style.setProperty(
+    "--desktop-interface-scale",
+    interfaceScale.toString(),
+  );
+}
+
+function restoreMobileViewport() {
+  const viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) return;
+
+  viewport.setAttribute("content", "width=device-width, initial-scale=1");
+  delete document.documentElement.dataset.desktopView;
+  document.documentElement.style.removeProperty("--desktop-interface-scale");
+}
 
 export default function SiteHeader() {
   const pathname = usePathname();
@@ -49,12 +82,18 @@ export default function SiteHeader() {
   }, [routeIndex]);
 
   useEffect(() => {
-    const compactScreen = window.matchMedia("(max-width: 900px)");
+    const compactScreen =
+      Math.min(window.screen.width, window.screen.height) <= 900;
     const touchDevice =
       window.matchMedia("(pointer: coarse)").matches ||
       navigator.maxTouchPoints > 0;
 
-    setIsMobileViewer(compactScreen.matches && touchDevice);
+    setIsMobileViewer(compactScreen && touchDevice);
+
+    if (sessionStorage.getItem(VIEW_MODE_KEY) === "desktop") {
+      applyDesktopViewport();
+      setDesktopView(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -69,11 +108,43 @@ export default function SiteHeader() {
   }, []);
 
   useEffect(() => {
-    if (!siteLoaded || !isMobileViewer || recommendationShown.current) return;
+    if (
+      !siteLoaded ||
+      !isMobileViewer ||
+      desktopView ||
+      recommendationShown.current
+    ) {
+      return;
+    }
 
     recommendationShown.current = true;
     setMobileDialog("recommendation");
-  }, [isMobileViewer, siteLoaded]);
+  }, [desktopView, isMobileViewer, siteLoaded]);
+
+  useEffect(() => {
+    if (!desktopView) return undefined;
+
+    const frame = window.requestAnimationFrame(applyDesktopViewport);
+    const routeTimer = window.setTimeout(applyDesktopViewport, 180);
+    const viewportObserver = new MutationObserver(() => {
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (!viewport?.content.includes(`width=${DESKTOP_VIEW_WIDTH}`)) {
+        applyDesktopViewport();
+      }
+    });
+
+    viewportObserver.observe(document.head, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(routeTimer);
+      viewportObserver.disconnect();
+    };
+  }, [desktopView, pathname]);
 
   useEffect(() => {
     if (mobileDialog !== "rotate") return undefined;
@@ -90,9 +161,6 @@ export default function SiteHeader() {
   }, [mobileDialog]);
 
   const toggleDesktopView = async () => {
-    const viewport = document.querySelector('meta[name="viewport"]');
-    if (!viewport) return;
-
     const nextDesktopView = !desktopView;
 
     if (nextDesktopView) {
@@ -102,28 +170,12 @@ export default function SiteHeader() {
         // Orientation locking is restricted by some mobile browsers.
       }
 
-      const desktopWidth = 1280;
-      const landscape = window.matchMedia("(orientation: landscape)").matches;
-      const screenWidth = landscape
-        ? Math.max(window.screen.width, window.screen.height)
-        : Math.min(window.screen.width, window.screen.height);
-      const desktopScale = Math.min(1, screenWidth / desktopWidth);
-      const interfaceScale = desktopWidth / screenWidth;
-
-      viewport.setAttribute(
-        "content",
-        `width=${desktopWidth}, initial-scale=${desktopScale}`,
-      );
-      document.documentElement.dataset.desktopView = "true";
-      document.documentElement.style.setProperty(
-        "--desktop-interface-scale",
-        interfaceScale.toString(),
-      );
+      applyDesktopViewport();
+      sessionStorage.setItem(VIEW_MODE_KEY, "desktop");
       setMobileDialog("rotate");
     } else {
-      viewport.setAttribute("content", "width=device-width, initial-scale=1");
-      delete document.documentElement.dataset.desktopView;
-      document.documentElement.style.removeProperty("--desktop-interface-scale");
+      restoreMobileViewport();
+      sessionStorage.removeItem(VIEW_MODE_KEY);
       setMobileDialog(null);
 
       try {
@@ -203,7 +255,9 @@ export default function SiteHeader() {
       {mobileDialog && (
         <div className="mobile-experience-backdrop" role="presentation">
           <section
-            className="mobile-experience-dialog"
+            className={`mobile-experience-dialog${
+              mobileDialog === "rotate" ? " is-rotate" : ""
+            }`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="mobile-experience-title"
@@ -216,10 +270,6 @@ export default function SiteHeader() {
             >
               <PiX />
             </button>
-
-            <div className="mobile-experience-icon" aria-hidden="true">
-              {mobileDialog === "rotate" ? <PiDeviceRotate /> : <PiDesktop />}
-            </div>
 
             <p className="mobile-experience-kicker">
               {mobileDialog === "rotate" ? "One last move" : "Full experience"}
@@ -243,7 +293,6 @@ export default function SiteHeader() {
                     type="button"
                     onClick={toggleDesktopView}
                   >
-                    <PiDesktop />
                     Switch to desktop
                   </button>
                   <button

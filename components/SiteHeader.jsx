@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
+  PiDesktop,
+  PiDeviceMobile,
   PiEnvelopeSimple,
   PiHouseSimple,
   PiSquaresFour,
@@ -28,6 +30,8 @@ export default function SiteHeader() {
         ? 3
         : 0;
   const [activeIndex, setActiveIndex] = useState(routeIndex);
+  const [isMobileViewer, setIsMobileViewer] = useState(false);
+  const [desktopView, setDesktopView] = useState(false);
 
   useEffect(() => {
     const syncActiveItem = () => {
@@ -38,6 +42,55 @@ export default function SiteHeader() {
     window.addEventListener("hashchange", syncActiveItem);
     return () => window.removeEventListener("hashchange", syncActiveItem);
   }, [routeIndex]);
+
+  useEffect(() => {
+    const compactScreen = window.matchMedia("(max-width: 900px)");
+    const touchDevice =
+      window.matchMedia("(pointer: coarse)").matches ||
+      navigator.maxTouchPoints > 0;
+
+    setIsMobileViewer(compactScreen.matches && touchDevice);
+  }, []);
+
+  const toggleDesktopView = async () => {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) return;
+
+    const nextDesktopView = !desktopView;
+
+    if (nextDesktopView) {
+      try {
+        await window.screen.orientation?.lock?.("landscape");
+      } catch (_) {
+        // Orientation locking is restricted by some mobile browsers.
+      }
+
+      const desktopWidth = 1280;
+      const landscape = window.matchMedia("(orientation: landscape)").matches;
+      const screenWidth = landscape
+        ? Math.max(window.screen.width, window.screen.height)
+        : Math.min(window.screen.width, window.screen.height);
+      const desktopScale = Math.min(1, screenWidth / desktopWidth);
+
+      viewport.setAttribute(
+        "content",
+        `width=${desktopWidth}, initial-scale=${desktopScale}`,
+      );
+      document.documentElement.dataset.desktopView = "true";
+    } else {
+      viewport.setAttribute("content", "width=device-width, initial-scale=1");
+      delete document.documentElement.dataset.desktopView;
+
+      try {
+        window.screen.orientation?.unlock?.();
+      } catch (_) {
+        // Some browsers expose orientation information without unlock support.
+      }
+    }
+
+    setDesktopView(nextDesktopView);
+    window.dispatchEvent(new Event("resize"));
+  };
 
   return (
     <>
@@ -66,6 +119,18 @@ export default function SiteHeader() {
         </nav>
 
         <div className="nav-actions">
+          {isMobileViewer && (
+            <button
+              className={`desktop-view-toggle${desktopView ? " is-active" : ""}`}
+              type="button"
+              aria-label={desktopView ? "Return to mobile view" : "Switch to desktop view"}
+              aria-pressed={desktopView}
+              title={desktopView ? "Mobile view" : "Desktop view"}
+              onClick={toggleDesktopView}
+            >
+              {desktopView ? <PiDeviceMobile /> : <PiDesktop />}
+            </button>
+          )}
           <MusicPlayer />
         </div>
       </header>

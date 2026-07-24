@@ -37,15 +37,6 @@
   line-height: 1;
 }
 
-.supporting {
-  max-width: 560px;
-  margin-top: 24px;
-  color: var(--muted);
-  font-size: clamp(16px, 1.45vw, 21px);
-  letter-spacing: -0.5px;
-  line-height: 1.35;
-}
-
 .cards {
   display: grid;
   width: min(100%, 1400px);
@@ -242,12 +233,6 @@
 
   .header h2 span {
     margin-top: 9px;
-  }
-
-  .supporting {
-    max-width: 330px;
-    margin-top: 20px;
-    font-size: 15px;
   }
 
   .cards {

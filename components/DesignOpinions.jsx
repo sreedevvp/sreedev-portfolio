@@ -311,9 +311,6 @@ export default function DesignOpinions() {
           A Few Design Hills I’ll Gladly
           <span>Die On</span>
         </h2>
-        <p className={styles.supporting}>
-          Somewhere between user needs, clear thinking, and visual instinct.
-        </p>
       </header>
 
       <div className={styles.cards}>

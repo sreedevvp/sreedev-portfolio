@@ -22,6 +22,7 @@ const links = [
 
 const VIEW_MODE_KEY = "sreedev-view-mode";
 const DESKTOP_VIEW_WIDTH = 1280;
+const MOBILE_DIALOG_DURATION = 3000;
 
 function applyDesktopViewport() {
   const viewport = document.querySelector('meta[name="viewport"]');
@@ -69,6 +70,7 @@ export default function SiteHeader() {
   const [siteLoaded, setSiteLoaded] = useState(false);
   const [mobileDialog, setMobileDialog] = useState(null);
   const recommendationShown = useRef(false);
+  const desktopViewActive = useRef(false);
 
   useEffect(() => {
     const syncActiveItem = () => {
@@ -90,6 +92,7 @@ export default function SiteHeader() {
     setIsMobileViewer(compactScreen && touchDevice);
 
     if (sessionStorage.getItem(VIEW_MODE_KEY) === "desktop") {
+      desktopViewActive.current = true;
       applyDesktopViewport();
       setDesktopView(true);
     }
@@ -139,7 +142,10 @@ export default function SiteHeader() {
     };
     const viewportObserver = new MutationObserver(() => {
       const viewport = document.querySelector('meta[name="viewport"]');
-      if (!viewport?.content.includes(`width=${DESKTOP_VIEW_WIDTH}`)) {
+      if (
+        desktopViewActive.current &&
+        !viewport?.content.includes(`width=${DESKTOP_VIEW_WIDTH}`)
+      ) {
         applyDesktopViewport();
       }
     });
@@ -175,14 +181,27 @@ export default function SiteHeader() {
   }, [mobileDialog]);
 
   useEffect(() => {
-    if (!mobileDialog) return undefined;
+    const root = document.documentElement;
+    if (!mobileDialog) {
+      delete root.dataset.mobileDialog;
+      return undefined;
+    }
 
-    const autoDismiss = window.setTimeout(() => setMobileDialog(null), 5000);
-    return () => window.clearTimeout(autoDismiss);
+    root.dataset.mobileDialog = mobileDialog;
+    const autoDismiss = window.setTimeout(
+      () => setMobileDialog(null),
+      MOBILE_DIALOG_DURATION,
+    );
+
+    return () => {
+      window.clearTimeout(autoDismiss);
+      delete root.dataset.mobileDialog;
+    };
   }, [mobileDialog]);
 
   const toggleDesktopView = async () => {
     const nextDesktopView = !desktopView;
+    desktopViewActive.current = nextDesktopView;
 
     if (nextDesktopView) {
       try {

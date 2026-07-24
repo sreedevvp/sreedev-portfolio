@@ -478,10 +478,18 @@ html[data-desktop-view="true"] .desktop-view-toggle svg {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(246, 246, 247, 0.18);
+  background: rgba(246, 246, 247, 0.5);
   backdrop-filter: blur(22px) saturate(105%);
   -webkit-backdrop-filter: blur(22px) saturate(105%);
   animation: experience-backdrop-in 280ms ease both;
+}
+
+html[data-mobile-dialog] body > main,
+html[data-mobile-dialog] .site-header,
+html[data-mobile-dialog] .mobile-nav,
+html[data-mobile-dialog] .floating-theme-toggle,
+html[data-mobile-dialog] .interactive-background {
+  filter: blur(9px);
 }
 
 .mobile-experience-dialog {
@@ -519,7 +527,7 @@ html[data-desktop-view="true"] .desktop-view-toggle svg {
 
 .mobile-experience-copy {
   margin-top: 14px;
-  color: #68686e;
+  color: #3f3f44;
   font-size: 14px;
   line-height: 1.55;
 }
@@ -569,7 +577,17 @@ html[data-desktop-view="true"] .desktop-view-toggle svg {
 }
 
 html[data-theme="dark"] .mobile-experience-backdrop {
-  background: rgba(3, 3, 4, 0.24);
+  background: rgba(3, 3, 4, 0.5);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .mobile-experience-backdrop {
+    background: rgba(246, 246, 247, 0.72);
+  }
+
+  html[data-theme="dark"] .mobile-experience-backdrop {
+    background: rgba(3, 3, 4, 0.72);
+  }
 }
 
 html[data-theme="dark"] .mobile-experience-dialog {
@@ -579,7 +597,7 @@ html[data-theme="dark"] .mobile-experience-dialog {
 html[data-theme="dark"] .mobile-experience-kicker,
 html[data-theme="dark"] .mobile-experience-copy,
 html[data-theme="dark"] .mobile-experience-secondary {
-  color: #989ba7;
+  color: #c2c5cf;
 }
 
 html[data-theme="dark"] .mobile-experience-primary {
@@ -597,6 +615,12 @@ html[data-desktop-view="true"] .mobile-experience-dialog {
   }
   to {
     opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-experience-backdrop {
+    animation: none;
   }
 }
 

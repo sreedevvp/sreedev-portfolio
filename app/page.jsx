@@ -4,6 +4,7 @@ import InteractiveLanyard from "../components/InteractiveLanyard";
 import HomeProjectGrid from "../components/HomeProjectGrid";
 import CreativeWorksGallery from "../components/CreativeWorksGallery";
 import DesignProcess from "../components/DesignProcess";
+import DesignOpinions from "../components/DesignOpinions";
 import ServiceMarquee from "../components/ServiceMarquee";
 import ContactGlobe from "../components/ContactGlobe";
 
@@ -163,6 +164,8 @@ export default function HomePage() {
             <i aria-hidden="true">&#8599;</i>
           </Link>
         </section>
+
+        <DesignOpinions />
 
         <section className="creative-works section-space" aria-labelledby="creative-works-title">
           <div className="hero-discipline section-label reveal" id="creative-works-title">

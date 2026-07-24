@@ -19,6 +19,16 @@ const projects = [
     featured: true,
   },
   {
+    slug: "payslate",
+    title: "PaySlate",
+    category: "product",
+    cover: "/projects/payslate-dashboard-cover.png",
+    copy:
+      "An all-in-one finance management platform that helps freelancers create invoices, track payments, manage expenses, and understand their business performance.",
+    tags: ["Fintech", "Dashboard"],
+    href: "https://www.behance.net/gallery/253085727/PaySlate-Freelancer-Invoice-Payment-Dashboard",
+  },
+  {
     slug: "vantage",
     title: "Vantage",
     category: "product",
@@ -46,6 +56,16 @@ const projects = [
       "A fintech app that converts money spent into time worked and classifies transactions as useful or wasted spend.",
     tags: ["Fintech", "Mobile app", "Behaviour"],
     href: "https://www.behance.net/gallery/252503593/Spense-A-Time-Based-Finance-App",
+  },
+  {
+    slug: "payslate-landing",
+    title: "PaySlate Landing Page",
+    category: "landing",
+    cover: "/projects/payslate-landing-cover.png",
+    copy:
+      "A focused marketing website that presents PaySlate's invoicing, payment tracking, expense management, and business insights for freelancers.",
+    tags: ["Fintech", "Landing", "SaaS"],
+    href: "https://www.behance.net/gallery/253058537/PaySlate-Invoice-Payment-Management-Landing-page",
   },
   {
     slug: "clarity-landing",

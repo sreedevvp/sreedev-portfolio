@@ -26,6 +26,7 @@ export default function DesignOpinions() {
   const dragRef = useRef(null);
   const tagRefs = useRef({});
   const animationRefs = useRef({});
+  const settleTimerRef = useRef(null);
   const [positions, setPositions] = useState({});
   const [activeTag, setActiveTag] = useState(null);
   const [topLayer, setTopLayer] = useState(10);
@@ -35,14 +36,82 @@ export default function DesignOpinions() {
     () => () => {
       dragRef.current?.cleanup?.();
       Object.values(animationRefs.current).forEach(cancelAnimationFrame);
+      window.clearTimeout(settleTimerRef.current);
     },
     [],
   );
+
+  useEffect(() => {
+    const container = wordStackRef.current;
+    if (!container) return undefined;
+
+    const dropOrder = ["what-they-do", "buttons", "should", "say-exactly"];
+    const initialPositions = {};
+
+    dropOrder.forEach((id) => {
+      const tag = tagRefs.current[id];
+      if (tag) initialPositions[id] = { x: tag.offsetLeft, y: tag.offsetTop };
+    });
+
+    setPositions(initialPositions);
+
+    const frame = requestAnimationFrame(() => queueLoosePills(0));
+
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   function stopFalling(id) {
     const frame = animationRefs.current[id];
     if (frame) cancelAnimationFrame(frame);
     delete animationRefs.current[id];
+  }
+
+  function isSupported(id, tag, container) {
+    const containerBounds = container.getBoundingClientRect();
+    const tagBounds = tag.getBoundingClientRect();
+    const onGround = Math.abs(tagBounds.bottom - containerBounds.bottom) <= 3;
+
+    if (onGround) return true;
+
+    return Object.entries(tagRefs.current).some(([otherId, other]) => {
+      if (otherId === id || !other) return false;
+
+      const otherBounds = other.getBoundingClientRect();
+      const overlap =
+        Math.min(tagBounds.right, otherBounds.right) -
+        Math.max(tagBounds.left, otherBounds.left);
+      const enoughOverlap =
+        overlap > Math.min(tagBounds.width, otherBounds.width) * 0.22;
+      const touchingTop = Math.abs(tagBounds.bottom - otherBounds.top) <= 3;
+
+      return enoughOverlap && touchingTop;
+    });
+  }
+
+  function queueLoosePills(delay = 50) {
+    window.clearTimeout(settleTimerRef.current);
+    settleTimerRef.current = window.setTimeout(() => {
+      const container = wordStackRef.current;
+      if (!container || dragRef.current) return;
+
+      const nextLoosePill = Object.entries(tagRefs.current)
+        .filter(
+          ([id, tag]) =>
+            tag &&
+            !animationRefs.current[id] &&
+            !isSupported(id, tag, container),
+        )
+        .sort(
+          ([, first], [, second]) =>
+            second.getBoundingClientRect().bottom -
+            first.getBoundingClientRect().bottom,
+        )[0];
+
+      if (!nextLoosePill) return;
+
+      const [id, tag] = nextLoosePill;
+      dropTag(id, tag, container, tag.offsetLeft, tag.offsetTop);
+    }, delay);
   }
 
   function findLandingY(id, x, y, tag, container) {
@@ -99,6 +168,7 @@ export default function DesignOpinions() {
 
       if (y >= landingY - 0.5) {
         delete animationRefs.current[id];
+        queueLoosePills();
         return;
       }
 

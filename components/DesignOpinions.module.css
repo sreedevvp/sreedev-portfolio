@@ -142,6 +142,8 @@
 
 .wordTag {
   position: absolute;
+  top: 0;
+  left: 0;
   display: inline-flex;
   min-height: 62px;
   align-items: center;
@@ -159,6 +161,8 @@
   touch-action: none;
   user-select: none;
   white-space: nowrap;
+  transform-origin: center;
+  will-change: transform;
   transition: box-shadow 160ms ease;
 }
 
@@ -173,35 +177,19 @@
 }
 
 .buttons {
-  z-index: 4;
-  top: 42%;
-  left: 12%;
   background: #ffad00;
-  transform: rotate(-10deg);
 }
 
 .should {
-  z-index: 2;
-  top: 30%;
-  left: 24%;
   background: #ceb2f2;
-  transform: rotate(-31deg);
 }
 
 .sayexactly {
-  z-index: 1;
-  top: 22%;
-  left: 34%;
   background: #a6db91;
-  transform: rotate(-17deg);
 }
 
 .whattheydo {
-  z-index: 3;
-  top: 49%;
-  left: 20%;
   background: #86b4f1;
-  transform: rotate(-12deg);
 }
 
 :global(html[data-theme="dark"]) .section {

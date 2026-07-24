@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "cobe": "^2.0.1",
+    "matter-js": "^0.20.0",
     "next": "latest",
     "postcss": "^8.5.15",
     "react": "latest",

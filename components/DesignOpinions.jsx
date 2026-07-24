@@ -25,192 +25,244 @@ export default function DesignOpinions() {
   const wordStackRef = useRef(null);
   const dragRef = useRef(null);
   const tagRefs = useRef({});
-  const animationRefs = useRef({});
-  const settleTimerRef = useRef(null);
-  const [positions, setPositions] = useState({});
+  const physicsRef = useRef(null);
   const [activeTag, setActiveTag] = useState(null);
-  const [topLayer, setTopLayer] = useState(10);
-  const [layers, setLayers] = useState({});
-
-  useEffect(
-    () => () => {
-      dragRef.current?.cleanup?.();
-      Object.values(animationRefs.current).forEach(cancelAnimationFrame);
-      window.clearTimeout(settleTimerRef.current);
-    },
-    [],
-  );
 
   useEffect(() => {
     const container = wordStackRef.current;
     if (!container) return undefined;
 
-    const dropOrder = ["what-they-do", "buttons", "should", "say-exactly"];
-    const initialPositions = {};
+    let cancelled = false;
+    let resizeFrame = 0;
+    let animationFrame = 0;
+    let resizeObserver;
 
-    dropOrder.forEach((id) => {
-      const tag = tagRefs.current[id];
-      if (tag) initialPositions[id] = { x: tag.offsetLeft, y: tag.offsetTop };
-    });
+    async function startPhysics() {
+      const module = await import("matter-js");
+      if (cancelled) return;
 
-    setPositions(initialPositions);
+      const Matter = module.default ?? module;
+      const { Bodies, Body, Composite, Engine, Events, World } = Matter;
 
-    const frame = requestAnimationFrame(() => queueLoosePills(0));
+      function destroyPhysics() {
+        cancelAnimationFrame(animationFrame);
+        dragRef.current?.cleanup?.();
+        dragRef.current = null;
 
-    return () => cancelAnimationFrame(frame);
-  }, []);
-
-  function stopFalling(id) {
-    const frame = animationRefs.current[id];
-    if (frame) cancelAnimationFrame(frame);
-    delete animationRefs.current[id];
-  }
-
-  function isSupported(id, tag, container) {
-    const containerBounds = container.getBoundingClientRect();
-    const tagBounds = tag.getBoundingClientRect();
-    const onGround = Math.abs(tagBounds.bottom - containerBounds.bottom) <= 3;
-
-    if (onGround) return true;
-
-    return Object.entries(tagRefs.current).some(([otherId, other]) => {
-      if (otherId === id || !other) return false;
-
-      const otherBounds = other.getBoundingClientRect();
-      const overlap =
-        Math.min(tagBounds.right, otherBounds.right) -
-        Math.max(tagBounds.left, otherBounds.left);
-      const enoughOverlap =
-        overlap > Math.min(tagBounds.width, otherBounds.width) * 0.22;
-      const touchingTop = Math.abs(tagBounds.bottom - otherBounds.top) <= 3;
-
-      return enoughOverlap && touchingTop;
-    });
-  }
-
-  function queueLoosePills(delay = 50) {
-    window.clearTimeout(settleTimerRef.current);
-    settleTimerRef.current = window.setTimeout(() => {
-      const container = wordStackRef.current;
-      if (!container || dragRef.current) return;
-
-      const nextLoosePill = Object.entries(tagRefs.current)
-        .filter(
-          ([id, tag]) =>
-            tag &&
-            !animationRefs.current[id] &&
-            !isSupported(id, tag, container),
-        )
-        .sort(
-          ([, first], [, second]) =>
-            second.getBoundingClientRect().bottom -
-            first.getBoundingClientRect().bottom,
-        )[0];
-
-      if (!nextLoosePill) return;
-
-      const [id, tag] = nextLoosePill;
-      dropTag(id, tag, container, tag.offsetLeft, tag.offsetTop);
-    }, delay);
-  }
-
-  function findLandingY(id, x, y, tag, container) {
-    const containerBounds = container.getBoundingClientRect();
-    const tagBounds = tag.getBoundingClientRect();
-    const tagVisualLeftOffset = tagBounds.left - containerBounds.left - tag.offsetLeft;
-    const tagVisualTopOffset = tagBounds.top - containerBounds.top - tag.offsetTop;
-    const tagVisualLeft = x + tagVisualLeftOffset;
-    const tagVisualRight = tagVisualLeft + tagBounds.width;
-    const tagVisualBottomOffset = tagVisualTopOffset + tagBounds.height;
-    let landingY = container.clientHeight - tagVisualBottomOffset;
-
-    Object.entries(tagRefs.current).forEach(([otherId, other]) => {
-      if (otherId === id || !other) return;
-
-      const otherBounds = other.getBoundingClientRect();
-      const otherLeft = otherBounds.left - containerBounds.left;
-      const otherTop = otherBounds.top - containerBounds.top;
-      const overlap =
-        Math.min(tagVisualRight, otherLeft + otherBounds.width) -
-        Math.max(tagVisualLeft, otherLeft);
-      const enoughOverlap =
-        overlap > Math.min(tagBounds.width, otherBounds.width) * 0.22;
-      const surfaceIsBelow =
-        otherTop >= y + tagVisualTopOffset + tagBounds.height * 0.45;
-
-      if (enoughOverlap && surfaceIsBelow) {
-        landingY = Math.min(landingY, otherTop - tagVisualBottomOffset);
-      }
-    });
-
-    return Math.max(0, landingY);
-  }
-
-  function dropTag(id, tag, container, startX, startY) {
-    stopFalling(id);
-
-    let x = startX;
-    let y = startY;
-    let velocity = 0;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    function fall() {
-      const landingY = findLandingY(id, x, y, tag, container);
-
-      if (reduceMotion) {
-        y = landingY;
-      } else {
-        velocity = Math.min(velocity + 0.9, 16);
-        y = Math.min(y + velocity, landingY);
+        if (physicsRef.current?.engine) {
+          Events.off(physicsRef.current.engine);
+          World.clear(physicsRef.current.engine.world, false);
+          Engine.clear(physicsRef.current.engine);
+        }
       }
 
-      setPositions((current) => ({ ...current, [id]: { x, y } }));
+      function renderBodies() {
+        const physics = physicsRef.current;
+        if (!physics) return;
 
-      if (y >= landingY - 0.5) {
-        delete animationRefs.current[id];
-        queueLoosePills();
-        return;
+        Object.entries(physics.bodies).forEach(([id, body]) => {
+          const tag = tagRefs.current[id];
+          if (!tag) return;
+
+          tag.style.transform = `translate3d(${
+            body.position.x - body.boundsWidth / 2
+          }px, ${body.position.y - body.boundsHeight / 2}px, 0) rotate(${
+            body.angle
+          }rad)`;
+        });
       }
 
-      animationRefs.current[id] = requestAnimationFrame(fall);
+      function buildPhysics() {
+        destroyPhysics();
+
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        if (!width || !height) return;
+
+        const engine = Engine.create({
+          gravity: { x: 0, y: 1.15, scale: 0.001 },
+          positionIterations: 10,
+          velocityIterations: 8,
+          constraintIterations: 4,
+          enableSleeping: true,
+        });
+
+        const bodies = {};
+        const bodyOptions = {
+          chamfer: { radius: 32 },
+          density: 0.002,
+          friction: 0.72,
+          frictionAir: 0.025,
+          restitution: 0.08,
+          sleepThreshold: 50,
+        };
+
+        wordTags.forEach(({ id }) => {
+          const tag = tagRefs.current[id];
+          const bodyWidth = tag.offsetWidth;
+          const bodyHeight = tag.offsetHeight;
+          const body = Bodies.rectangle(0, 0, bodyWidth, bodyHeight, {
+            ...bodyOptions,
+            label: id,
+          });
+
+          body.boundsWidth = bodyWidth;
+          body.boundsHeight = bodyHeight;
+          bodies[id] = body;
+        });
+
+        const wallThickness = 80;
+        const walls = [
+          Bodies.rectangle(
+            width / 2,
+            height + wallThickness / 2,
+            width + wallThickness * 2,
+            wallThickness,
+            { isStatic: true, label: "floor", friction: 0.9 },
+          ),
+          Bodies.rectangle(
+            -wallThickness / 2,
+            height / 2,
+            wallThickness,
+            height * 2,
+            { isStatic: true, label: "left-wall" },
+          ),
+          Bodies.rectangle(
+            width + wallThickness / 2,
+            height / 2,
+            wallThickness,
+            height * 2,
+            { isStatic: true, label: "right-wall" },
+          ),
+        ];
+
+        const stackOrder = [
+          { id: "should", angle: -0.03, x: 0.58 },
+          { id: "say-exactly", angle: 0.04, x: 0.56 },
+          { id: "buttons", angle: -0.18, x: 0.48 },
+          { id: "what-they-do", angle: -0.08, x: 0.53 },
+        ];
+        let nextBottom = height - 2;
+
+        stackOrder.forEach(({ id, angle, x }) => {
+          const body = bodies[id];
+          const y = nextBottom - body.boundsHeight / 2;
+          Body.setPosition(body, { x: width * x, y });
+          Body.setAngle(body, angle);
+          nextBottom = y - body.boundsHeight / 2 + 5;
+        });
+
+        Composite.add(engine.world, [...walls, ...Object.values(bodies)]);
+
+        // Start with the same already-settled pile seen on the reference card.
+        for (let step = 0; step < 150; step += 1) {
+          Engine.update(engine, 1000 / 60);
+        }
+
+        physicsRef.current = { Matter, engine, bodies, width, height };
+        renderBodies();
+
+        let previousTime = performance.now();
+        function tick(time) {
+          const delta = Math.min(time - previousTime, 1000 / 30);
+          previousTime = time;
+          Engine.update(engine, delta);
+          renderBodies();
+          animationFrame = requestAnimationFrame(tick);
+        }
+
+        animationFrame = requestAnimationFrame(tick);
+      }
+
+      physicsRef.current = { Matter };
+      buildPhysics();
+
+      resizeObserver = new ResizeObserver(() => {
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(buildPhysics);
+      });
+      resizeObserver.observe(container);
     }
 
-    animationRefs.current[id] = requestAnimationFrame(fall);
-  }
+    startPhysics();
+
+    return () => {
+      cancelled = true;
+      resizeObserver?.disconnect();
+      cancelAnimationFrame(resizeFrame);
+      cancelAnimationFrame(animationFrame);
+      dragRef.current?.cleanup?.();
+
+      const physics = physicsRef.current;
+      if (physics?.engine) {
+        physics.Matter.Events.off(physics.engine);
+        physics.Matter.World.clear(physics.engine.world, false);
+        physics.Matter.Engine.clear(physics.engine);
+      }
+      physicsRef.current = null;
+    };
+  }, []);
 
   function beginDrag(event, id) {
     if (event.button !== 0) return;
 
     const container = wordStackRef.current;
-    if (!container) return;
+    const physics = physicsRef.current;
+    const body = physics?.bodies?.[id];
+    if (!container || !body) return;
 
     const tag = event.currentTarget;
-    stopFalling(id);
     dragRef.current?.cleanup?.();
-    const nextLayer = topLayer + 1;
+    const { Body, Sleeping } = physics.Matter;
     const pointerId = event.pointerId;
-    const startClientX = event.clientX;
-    const startClientY = event.clientY;
-    const startX = tag.offsetLeft;
-    const startY = tag.offsetTop;
-    let currentX = startX;
-    let currentY = startY;
+    const containerBounds = container.getBoundingClientRect();
+    const startPointer = {
+      x: event.clientX - containerBounds.left,
+      y: event.clientY - containerBounds.top,
+    };
+    const pointerOffset = {
+      x: startPointer.x - body.position.x,
+      y: startPointer.y - body.position.y,
+    };
+    let previousPoint = startPointer;
+    let previousTime = performance.now();
+    let releaseVelocity = { x: 0, y: 0 };
+
+    Object.values(physics.bodies).forEach((physicsBody) => {
+      Sleeping.set(physicsBody, false);
+    });
+    Sleeping.set(body, false);
+    Body.setStatic(body, true);
+    tag.style.zIndex = "20";
 
     function movePointer(moveEvent) {
       if (moveEvent.pointerId !== pointerId) return;
 
+      const now = performance.now();
+      const point = {
+        x: moveEvent.clientX - containerBounds.left,
+        y: moveEvent.clientY - containerBounds.top,
+      };
       const x = Math.min(
-        Math.max(0, startX + moveEvent.clientX - startClientX),
-        container.clientWidth - tag.offsetWidth,
+        Math.max(body.boundsWidth / 2, point.x - pointerOffset.x),
+        container.clientWidth - body.boundsWidth / 2,
       );
       const y = Math.min(
-        Math.max(0, startY + moveEvent.clientY - startClientY),
-        container.clientHeight - tag.offsetHeight,
+        Math.max(body.boundsHeight / 2, point.y - pointerOffset.y),
+        container.clientHeight - body.boundsHeight / 2,
       );
+      const elapsed = Math.max(8, now - previousTime);
 
-      currentX = x;
-      currentY = y;
-      setPositions((current) => ({ ...current, [id]: { x, y } }));
+      releaseVelocity = {
+        x: ((point.x - previousPoint.x) / elapsed) * 5,
+        y: ((point.y - previousPoint.y) / elapsed) * 5,
+      };
+      previousPoint = point;
+      previousTime = now;
+      Body.setPosition(body, { x, y });
+      Object.values(physics.bodies).forEach((physicsBody) => {
+        if (physicsBody !== body) Sleeping.set(physicsBody, false);
+      });
       moveEvent.preventDefault();
     }
 
@@ -226,7 +278,13 @@ export default function DesignOpinions() {
       cleanup();
       dragRef.current = null;
       setActiveTag(null);
-      dropTag(id, tag, container, currentX, currentY);
+      tag.style.zIndex = "";
+      Body.setStatic(body, false);
+      Sleeping.set(body, false);
+      Body.setVelocity(body, releaseVelocity);
+      Object.values(physics.bodies).forEach((physicsBody) => {
+        Sleeping.set(physicsBody, false);
+      });
     }
 
     dragRef.current = {
@@ -235,15 +293,6 @@ export default function DesignOpinions() {
       cleanup,
     };
 
-    setPositions((current) => ({
-      ...current,
-      [id]: {
-        x: startX,
-        y: startY,
-      },
-    }));
-    setLayers((current) => ({ ...current, [id]: nextLayer }));
-    setTopLayer(nextLayer);
     setActiveTag(id);
     window.addEventListener("pointermove", movePointer, { passive: false });
     window.addEventListener("pointerup", endPointer);
@@ -295,8 +344,6 @@ export default function DesignOpinions() {
         >
           <div className={styles.wordStack} ref={wordStackRef}>
             {wordTags.map((tag) => {
-              const position = positions[tag.id];
-
               return (
                 <button
                   className={`${styles.wordTag} ${styles[tag.id.replaceAll("-", "")]} ${
@@ -308,10 +355,6 @@ export default function DesignOpinions() {
                   }}
                   type="button"
                   onPointerDown={(event) => beginDrag(event, tag.id)}
-                  style={{
-                    ...(position ? { left: position.x, top: position.y } : null),
-                    zIndex: layers[tag.id],
-                  }}
                 >
                   {tag.label}
                 </button>

@@ -60,7 +60,7 @@
   overflow: hidden;
   border: 1px solid rgba(12, 12, 17, 0.07);
   border-radius: clamp(20px, 2vw, 30px);
-  background: #fff;
+  background: transparent;
   color: #0c0c11;
   transition:
     transform 420ms var(--ease-out-soft),
@@ -210,16 +210,16 @@
 
 :global(html[data-theme="dark"]) .card {
   border-color: rgba(255, 255, 255, 0.16);
-  background: #f7f7f8;
-  color: #0c0c11;
+  background: transparent;
+  color: #f4f7ff;
 }
 
 :global(html[data-theme="dark"]) .opinionsCard li:nth-last-child(2) {
-  color: #5f5f66;
+  color: #a4a6ae;
 }
 
 :global(html[data-theme="dark"]) .opinionsCard li:last-child {
-  color: #96969c;
+  color: #70727a;
 }
 
 @media (max-width: 900px) {

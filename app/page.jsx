@@ -165,8 +165,6 @@ export default function HomePage() {
           </Link>
         </section>
 
-        <DesignOpinions />
-
         <section className="creative-works section-space" aria-labelledby="creative-works-title">
           <div className="hero-discipline section-label reveal" id="creative-works-title">
             <span>Visual Design</span>
@@ -179,6 +177,8 @@ export default function HomePage() {
             <i aria-hidden="true">&#8599;</i>
           </Link>
         </section>
+
+        <DesignOpinions />
 
         <ContactGlobe />
       </main>

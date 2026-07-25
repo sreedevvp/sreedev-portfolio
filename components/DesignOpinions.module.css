@@ -193,11 +193,6 @@
   color: #f4f7ff;
 }
 
-:global(html[data-theme="dark"]) .darkModeCard {
-  background: #fff;
-  color: #0c0c11;
-}
-
 :global(html[data-theme="dark"]) .opinionsCard li:nth-last-child(2) {
   color: #a4a6ae;
 }

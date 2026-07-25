@@ -29,6 +29,15 @@ const projects = [
     href: "https://www.behance.net/gallery/253085727/PaySlate-Freelancer-Invoice-Payment-Dashboard",
   },
   {
+    slug: "mandate",
+    title: "Mandate",
+    category: "product",
+    cover: "/projects/mandate-cover.png",
+    copy: "A trust and control layer for agentic finance.",
+    tags: ["Fintech", "Agentic AI", "Control"],
+    href: "https://www.behance.net/gallery/253207765/Mandate-A-trust-and-control-layer-for-agentic-finance",
+  },
+  {
     slug: "vantage",
     title: "Vantage",
     category: "product",

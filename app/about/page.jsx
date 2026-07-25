@@ -5,6 +5,12 @@ import ExperienceShowcase from "../../components/ExperienceShowcase";
 
 export const metadata = {
   title: "About",
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    url: "/about",
+  },
 };
 
 export default function AboutPage() {

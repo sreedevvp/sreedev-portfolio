@@ -8,6 +8,15 @@ import DesignOpinions from "../components/DesignOpinions";
 import ServiceMarquee from "../components/ServiceMarquee";
 import ContactGlobe from "../components/ContactGlobe";
 
+export const metadata = {
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    url: "/",
+  },
+};
+
 const showcasePhotos = [
   {
     src: "/showcase/classroom-workshop.png",

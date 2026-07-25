@@ -19,6 +19,12 @@ export const metadata = {
   title: "Contact",
   description:
     "Start a product design, visual design, branding, or creative collaboration with Sreedev VP.",
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    url: "/contact",
+  },
 };
 
 const socialLinks = [

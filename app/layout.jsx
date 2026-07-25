@@ -4,12 +4,20 @@ import PageEffects from "../components/PageEffects";
 import SiteHeader from "../components/SiteHeader";
 
 export const metadata = {
+  metadataBase: new URL("https://www.devdesign.me"),
   title: {
     default: "Sreedev VP - Product Designer",
     template: "%s - Sreedev VP",
   },
   description:
     "Sreedev VP is a product designer working across UI/UX, visual design, branding, and digital product experiences.",
+  openGraph: {
+    type: "website",
+    title: "Sreedev VP - Product Designer",
+    description:
+      "Sreedev VP is a product designer working across UI/UX, visual design, branding, and digital product experiences.",
+    siteName: "Sreedev VP",
+  },
 };
 
 export default function RootLayout({ children }) {

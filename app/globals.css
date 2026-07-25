@@ -3375,19 +3375,14 @@ html[data-theme="dark"] .design-process-tools [data-tool="GitHub"] {
   display: block;
   width: 100%;
   height: auto;
-  filter: grayscale(0.24) saturate(0.66) contrast(0.92) brightness(1.03) sepia(0.04)
-    drop-shadow(0 14px 18px rgba(12, 12, 17, 0.08));
-  opacity: 0.94;
-  transition:
-    filter 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 520ms ease;
+  filter: drop-shadow(0 14px 18px rgba(12, 12, 17, 0.08));
+  opacity: 1;
+  transition: filter 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .about-beyond-visual:hover img,
 .about-beyond-visual:focus-visible img {
-  filter: grayscale(0) saturate(1) contrast(1) brightness(1) sepia(0)
-    drop-shadow(0 18px 24px rgba(12, 12, 17, 0.12));
-  opacity: 1;
+  filter: drop-shadow(0 18px 24px rgba(12, 12, 17, 0.12));
 }
 
 .about-section-heading i {
@@ -5769,16 +5764,13 @@ html[data-theme="dark"] .about-beyond-notes li {
 }
 
 html[data-theme="dark"] .about-beyond-visual img {
-  filter: grayscale(0.34) saturate(0.56) contrast(0.88) brightness(0.84)
-    drop-shadow(0 16px 22px rgba(0, 0, 0, 0.28));
-  opacity: 0.9;
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.28));
+  opacity: 1;
 }
 
 html[data-theme="dark"] .about-beyond-visual:hover img,
 html[data-theme="dark"] .about-beyond-visual:focus-visible img {
-  filter: grayscale(0) saturate(1) contrast(1) brightness(0.96)
-    drop-shadow(0 18px 26px rgba(0, 0, 0, 0.34));
-  opacity: 1;
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.34));
 }
 
 @media (prefers-reduced-motion: reduce) {

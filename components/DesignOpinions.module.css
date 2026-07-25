@@ -95,14 +95,6 @@
   flex-direction: column;
   gap: clamp(30px, 3vw, 48px);
   text-align: center;
-  transition:
-    background-color 320ms var(--ease-out-soft),
-    color 320ms var(--ease-out-soft);
-}
-
-.darkModeCard:hover {
-  background: #0c0c11;
-  color: #f7f7f7;
 }
 
 .darkModeMark {
@@ -206,11 +198,6 @@
   color: #0c0c11;
 }
 
-:global(html[data-theme="dark"]) .darkModeCard:hover {
-  background: #0c0c11;
-  color: #f7f7f7;
-}
-
 :global(html[data-theme="dark"]) .opinionsCard li:nth-last-child(2) {
   color: #a4a6ae;
 }
@@ -279,7 +266,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .darkModeCard,
   .darkModeMark {
     transition: none;
   }

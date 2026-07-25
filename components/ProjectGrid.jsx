@@ -85,6 +85,7 @@ const projects = [
     copy:
       "A fintech landing page that simplifies AI financial control, permissions, and transaction oversight.",
     tags: ["Fintech", "Landing", "Storytelling"],
+    href: "https://www.behance.net/gallery/253207871/mandate-landing-page",
   },
   {
     slug: "mulearn-landing",

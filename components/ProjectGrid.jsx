@@ -33,7 +33,8 @@ const projects = [
     title: "Mandate",
     category: "product",
     cover: "/projects/mandate-cover.png",
-    copy: "A trust and control layer for agentic finance.",
+    copy:
+      "A trust and control layer for agentic finance that helps teams define permissions, review high-impact actions, and maintain clear oversight of autonomous financial decisions.",
     tags: ["Fintech", "Agentic AI", "Control"],
     href: "https://www.behance.net/gallery/253207765/Mandate-A-trust-and-control-layer-for-agentic-finance",
   },

@@ -46,6 +46,7 @@ const projects = [
     copy:
       "A real-time safety platform that helps trip organisers track participants, coordinate groups, and respond during emergencies.",
     tags: ["Safety", "Real-time", "Platform"],
+    href: "https://vantages.live",
   },
   {
     slug: "clarity-ai",

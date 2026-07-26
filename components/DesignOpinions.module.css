@@ -21,7 +21,7 @@
   margin-top: 0;
   font-size: clamp(47px, 5vw, 78px);
   font-weight: 400;
-  letter-spacing: -0.065em;
+  letter-spacing: calc(-0.065em + 2px);
   line-height: 0.95;
 }
 
@@ -101,7 +101,7 @@
   width: clamp(164px, 14vw, 202px);
   height: auto;
   border-radius: 10px;
-  filter: invert(1);
+  filter: invert(1) grayscale(1) contrast(1.5);
   transition: filter 320ms var(--ease-out-soft);
 }
 

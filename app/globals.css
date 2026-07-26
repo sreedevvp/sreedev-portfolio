@@ -3200,6 +3200,21 @@ html[data-theme="dark"] .design-process-tools [data-tool="GitHub"] {
   transform: translate3d(0, 0, 0);
 }
 
+@media (min-width: 901px) and (hover: hover) and (pointer: fine) {
+  .section-scroll-reveal {
+    opacity: 0.01;
+    transform: translate3d(0, 18px, 0);
+    transition:
+      opacity 620ms var(--ease-out-soft),
+      transform 720ms var(--ease-out-soft);
+  }
+
+  .section-scroll-reveal.is-section-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .delay-1 {
   transition-delay: 70ms;
 }

@@ -117,6 +117,105 @@ export default function PageEffects() {
   }, [pathname]);
 
   useEffect(() => {
+    const root = document.documentElement;
+    const desktopViewport = window.matchMedia("(min-width: 901px)");
+    const coarsePointer = window.matchMedia("(pointer: coarse)");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let sectionObserver;
+    let sectionFrame;
+    let sections = [];
+
+    const clearSectionMotion = () => {
+      sectionObserver?.disconnect();
+      window.cancelAnimationFrame(sectionFrame);
+      sections.forEach((section) => {
+        section.classList.remove(
+          "section-scroll-reveal",
+          "is-section-visible",
+        );
+      });
+    };
+
+    const configureSectionMotion = () => {
+      clearSectionMotion();
+      sections = [
+        ...document.querySelectorAll("body > main section"),
+      ].filter(
+        (section) =>
+          !section.hidden &&
+          section.getAttribute("aria-hidden") !== "true" &&
+          section.getBoundingClientRect().height > 80,
+      );
+
+      const isTouchDevice =
+        coarsePointer.matches || navigator.maxTouchPoints > 0;
+      const isScaledMobileDesktop = root.dataset.desktopView === "true";
+      const shouldAnimate =
+        desktopViewport.matches &&
+        !isTouchDevice &&
+        !isScaledMobileDesktop &&
+        !reduceMotion.matches;
+
+      if (!shouldAnimate) return;
+
+      sections.forEach((section) =>
+        section.classList.add("section-scroll-reveal"),
+      );
+
+      sectionObserver = new IntersectionObserver(
+        (entries) => {
+          const visibleSections = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort(
+              (first, second) =>
+                first.boundingClientRect.top -
+                second.boundingClientRect.top,
+            );
+
+          if (!visibleSections.length) return;
+
+          window.requestAnimationFrame(() => {
+            visibleSections.forEach((entry) => {
+              entry.target.classList.add("is-section-visible");
+              sectionObserver?.unobserve(entry.target);
+            });
+          });
+        },
+        {
+          threshold: 0.08,
+          rootMargin: "0px 0px -6% 0px",
+        },
+      );
+
+      sectionFrame = window.requestAnimationFrame(() => {
+        sections.forEach((section) => sectionObserver?.observe(section));
+      });
+    };
+
+    configureSectionMotion();
+
+    desktopViewport.addEventListener("change", configureSectionMotion);
+    coarsePointer.addEventListener("change", configureSectionMotion);
+    reduceMotion.addEventListener("change", configureSectionMotion);
+
+    const desktopModeObserver = new MutationObserver(
+      configureSectionMotion,
+    );
+    desktopModeObserver.observe(root, {
+      attributes: true,
+      attributeFilter: ["data-desktop-view"],
+    });
+
+    return () => {
+      clearSectionMotion();
+      desktopViewport.removeEventListener("change", configureSectionMotion);
+      coarsePointer.removeEventListener("change", configureSectionMotion);
+      reduceMotion.removeEventListener("change", configureSectionMotion);
+      desktopModeObserver.disconnect();
+    };
+  }, [pathname]);
+
+  useEffect(() => {
     if (!navigating) return undefined;
     const safetyTimer = window.setTimeout(() => setNavigating(false), 4000);
     return () => window.clearTimeout(safetyTimer);

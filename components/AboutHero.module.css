@@ -598,7 +598,12 @@
   }
 
   .cursorLayer {
-    display: none;
+    display: block;
+  }
+
+  .cursor {
+    transform: scale(0.82);
+    transform-origin: top left;
   }
 }
 

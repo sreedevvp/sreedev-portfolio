@@ -3176,6 +3176,8 @@ html[data-theme="dark"] .design-process-tools [data-tool="GitHub"] {
   right: 5%;
   bottom: 25px;
   pointer-events: auto;
+  transform: scale(1.1);
+  transform-origin: right bottom;
 }
 
 @media (min-width: 901px) {

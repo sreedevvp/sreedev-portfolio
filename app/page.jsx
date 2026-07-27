@@ -24,6 +24,16 @@ const showcasePhotos = [
     position: "50% 38%",
   },
   {
+    src: "/showcase/workshop-presentation-lab.png",
+    alt: "Sreedev presenting a workshop to students in a computer lab",
+    position: "50% 42%",
+  },
+  {
+    src: "/showcase/workshop-classroom-wide.png",
+    alt: "Students attending Sreedev's workshop in a computer lab",
+    position: "50% center",
+  },
+  {
     src: "/showcase/recognition-award.png",
     alt: "Sreedev receiving recognition at KARMA 26",
     position: "48% center",

@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
+const SOUND_PROMPT_DURATION = 5000;
+const SOUND_PROMPT_FADE_DURATION = 400;
+
 export default function PageEffects() {
   const [loaded, setLoaded] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
@@ -247,11 +250,11 @@ export default function PageEffects() {
 
     const autoDismiss = window.setTimeout(() => {
       setSoundPromptClosing(true);
-    }, 3000);
+    }, SOUND_PROMPT_DURATION);
     const removePrompt = window.setTimeout(() => {
       setSoundPrompt(false);
       setSoundPromptClosing(false);
-    }, 3400);
+    }, SOUND_PROMPT_DURATION + SOUND_PROMPT_FADE_DURATION);
 
     return () => {
       window.clearTimeout(autoDismiss);
@@ -265,7 +268,7 @@ export default function PageEffects() {
     window.setTimeout(() => {
       setSoundPrompt(false);
       setSoundPromptClosing(false);
-    }, 400);
+    }, SOUND_PROMPT_FADE_DURATION);
   };
 
   const enableSound = () => {

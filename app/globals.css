@@ -631,7 +631,12 @@ html[data-desktop-view="true"] .mobile-experience-dialog {
 }
 
 .sound-experience-dialog {
+  width: min(100%, 460px);
   animation: sound-content-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sound-experience-dialog h2 {
+  white-space: nowrap;
 }
 
 .sound-experience-dialog .mobile-experience-actions {

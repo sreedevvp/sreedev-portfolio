@@ -242,6 +242,9 @@ export default function PageEffects() {
   useEffect(() => {
     if (!soundPrompt) return undefined;
 
+    const root = document.documentElement;
+    root.dataset.soundPrompt = "true";
+
     const autoDismiss = window.setTimeout(() => {
       setSoundPromptClosing(true);
     }, 3000);
@@ -253,6 +256,7 @@ export default function PageEffects() {
     return () => {
       window.clearTimeout(autoDismiss);
       window.clearTimeout(removePrompt);
+      delete root.dataset.soundPrompt;
     };
   }, [soundPrompt]);
 
@@ -307,27 +311,21 @@ export default function PageEffects() {
           aria-labelledby="sound-experience-title"
         >
           <section className="mobile-experience-dialog sound-experience-dialog">
-            <p className="mobile-experience-kicker">Sound experience</p>
-            <h2 id="sound-experience-title">
-              This portfolio sounds better with music.
-            </h2>
-            <p className="mobile-experience-copy">
-              Turn on Touch the sky for the full mood, or keep exploring in silence.
-            </p>
+            <h2 id="sound-experience-title">Sound on?</h2>
             <div className="mobile-experience-actions">
               <button
                 className="mobile-experience-primary"
                 type="button"
                 onClick={enableSound}
               >
-                Enable sound
+                Sound on
               </button>
               <button
                 className="mobile-experience-secondary"
                 type="button"
                 onClick={dismissSoundPrompt}
               >
-                Continue without sound
+                No sound
               </button>
             </div>
           </section>

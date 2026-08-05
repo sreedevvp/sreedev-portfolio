@@ -620,6 +620,9 @@ html[data-desktop-view="true"] .mobile-experience-dialog {
 
 .sound-experience-backdrop {
   z-index: 9200;
+  background: rgba(246, 246, 247, 0.28);
+  backdrop-filter: blur(38px) saturate(90%);
+  -webkit-backdrop-filter: blur(38px) saturate(90%);
 }
 
 .sound-experience-backdrop.is-leaving {
@@ -631,12 +634,46 @@ html[data-desktop-view="true"] .mobile-experience-dialog {
   animation: sound-content-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.sound-experience-dialog .mobile-experience-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.sound-experience-dialog .mobile-experience-primary,
+.sound-experience-dialog .mobile-experience-secondary {
+  min-width: 96px;
+}
+
+html[data-sound-prompt="true"] body > main,
+html[data-sound-prompt="true"] .site-header,
+html[data-sound-prompt="true"] .mobile-nav,
+html[data-sound-prompt="true"] .floating-theme-toggle,
+html[data-sound-prompt="true"] .interactive-background {
+  filter: blur(18px);
+}
+
+html[data-theme="dark"] .sound-experience-backdrop {
+  background: rgba(3, 3, 4, 0.3);
+}
+
 .is-leaving .sound-experience-dialog {
   animation: sound-content-out 300ms ease both;
 }
 
 html[data-desktop-view="true"] .sound-experience-backdrop {
   display: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sound-experience-backdrop {
+    background: rgba(246, 246, 247, 0.76);
+  }
+
+  html[data-theme="dark"] .sound-experience-backdrop {
+    background: rgba(3, 3, 4, 0.78);
+  }
 }
 
 @keyframes sound-backdrop-out {

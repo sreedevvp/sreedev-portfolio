@@ -8,6 +8,8 @@ export default function PageEffects() {
   const [loaded, setLoaded] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [navigating, setNavigating] = useState(false);
+  const [soundPrompt, setSoundPrompt] = useState(false);
+  const [soundPromptClosing, setSoundPromptClosing] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -221,6 +223,52 @@ export default function PageEffects() {
     return () => window.clearTimeout(safetyTimer);
   }, [navigating]);
 
+  useEffect(() => {
+    if (!loaded) return undefined;
+
+    const desktopViewport = window.matchMedia("(min-width: 901px)").matches;
+    const touchDevice =
+      window.matchMedia("(pointer: coarse)").matches ||
+      navigator.maxTouchPoints > 0;
+    const scaledMobileDesktop =
+      document.documentElement.dataset.desktopView === "true";
+
+    if (!desktopViewport || touchDevice || scaledMobileDesktop) return undefined;
+
+    const showFrame = window.requestAnimationFrame(() => setSoundPrompt(true));
+    return () => window.cancelAnimationFrame(showFrame);
+  }, [loaded]);
+
+  useEffect(() => {
+    if (!soundPrompt) return undefined;
+
+    const autoDismiss = window.setTimeout(() => {
+      setSoundPromptClosing(true);
+    }, 3000);
+    const removePrompt = window.setTimeout(() => {
+      setSoundPrompt(false);
+      setSoundPromptClosing(false);
+    }, 3400);
+
+    return () => {
+      window.clearTimeout(autoDismiss);
+      window.clearTimeout(removePrompt);
+    };
+  }, [soundPrompt]);
+
+  const dismissSoundPrompt = () => {
+    setSoundPromptClosing(true);
+    window.setTimeout(() => {
+      setSoundPrompt(false);
+      setSoundPromptClosing(false);
+    }, 400);
+  };
+
+  const enableSound = () => {
+    window.dispatchEvent(new CustomEvent("portfolio:audio-enable"));
+    dismissSoundPrompt();
+  };
+
   return (
     <>
       <div className={`quote-loader ${loaded ? "hidden" : ""}`} aria-hidden="true">
@@ -249,6 +297,32 @@ export default function PageEffects() {
         className={`route-progress ${navigating ? "is-active" : ""}`}
         aria-hidden="true"
       />
+      {soundPrompt && (
+        <div
+          className={`sound-experience-backdrop${
+            soundPromptClosing ? " is-leaving" : ""
+          }`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sound-experience-title"
+        >
+          <div className="sound-experience-content">
+            <h2 id="sound-experience-title">
+              For the best experience,
+              <br />
+              we recommend enabling sound
+            </h2>
+            <div className="sound-experience-actions">
+              <button type="button" onClick={enableSound}>
+                enable sound
+              </button>
+              <button type="button" onClick={dismissSoundPrompt}>
+                no sound
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="floating-theme-toggle">
         <ThemeToggle />
       </div>

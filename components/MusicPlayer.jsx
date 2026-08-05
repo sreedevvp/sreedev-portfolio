@@ -78,6 +78,16 @@ export default function MusicPlayer() {
     else startTrack();
   }
 
+  useEffect(() => {
+    const handleSoundEnable = () => {
+      if (!playing) startTrack();
+    };
+
+    window.addEventListener("portfolio:audio-enable", handleSoundEnable);
+    return () =>
+      window.removeEventListener("portfolio:audio-enable", handleSoundEnable);
+  }, [playing, volume]);
+
   function updateVolume(clientX, target) {
     const rect = target.getBoundingClientRect();
     const nextVolume = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));

@@ -618,6 +618,144 @@ html[data-desktop-view="true"] .mobile-experience-dialog {
   }
 }
 
+.sound-experience-backdrop {
+  position: fixed;
+  z-index: 9200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(246, 246, 247, 0.48);
+  color: #0c0c11;
+  backdrop-filter: blur(24px) saturate(115%);
+  -webkit-backdrop-filter: blur(24px) saturate(115%);
+  animation: sound-backdrop-in 400ms ease both;
+}
+
+.sound-experience-backdrop.is-leaving {
+  pointer-events: none;
+  animation: sound-backdrop-out 400ms ease both;
+}
+
+.sound-experience-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+  animation: sound-content-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.is-leaving .sound-experience-content {
+  animation: sound-content-out 300ms ease both;
+}
+
+.sound-experience-content h2 {
+  margin: 0;
+  font-size: clamp(15px, 1.05vw, 18px);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.sound-experience-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.sound-experience-actions button {
+  min-width: 112px;
+  padding: 12px 16px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition:
+    background 220ms ease,
+    color 220ms ease,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sound-experience-actions button:hover,
+.sound-experience-actions button:focus-visible {
+  background: #0c0c11;
+  color: #f7f7f8;
+  transform: translateY(-2px);
+}
+
+.sound-experience-actions button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+html[data-theme="dark"] .sound-experience-backdrop {
+  background: rgba(3, 3, 4, 0.52);
+  color: #f4f7ff;
+}
+
+html[data-theme="dark"] .sound-experience-actions button:hover,
+html[data-theme="dark"] .sound-experience-actions button:focus-visible {
+  background: #f4f7ff;
+  color: #09090a;
+}
+
+html[data-desktop-view="true"] .sound-experience-backdrop {
+  display: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sound-experience-backdrop {
+    background: rgba(246, 246, 247, 0.9);
+  }
+
+  html[data-theme="dark"] .sound-experience-backdrop {
+    background: rgba(3, 3, 4, 0.92);
+  }
+}
+
+@keyframes sound-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sound-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes sound-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sound-content-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .sound-experience-backdrop {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mobile-experience-backdrop {
     animation: none;

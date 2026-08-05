@@ -311,7 +311,11 @@ export default function PageEffects() {
           aria-labelledby="sound-experience-title"
         >
           <section className="mobile-experience-dialog sound-experience-dialog">
-            <h2 id="sound-experience-title">Sound on?</h2>
+            <h2 id="sound-experience-title">
+              This portfolio sounds better
+              <br />
+              with music.
+            </h2>
             <div className="mobile-experience-actions">
               <button
                 className="mobile-experience-primary"

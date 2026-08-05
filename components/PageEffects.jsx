@@ -299,28 +299,38 @@ export default function PageEffects() {
       />
       {soundPrompt && (
         <div
-          className={`sound-experience-backdrop${
+          className={`mobile-experience-backdrop sound-experience-backdrop${
             soundPromptClosing ? " is-leaving" : ""
           }`}
           role="dialog"
           aria-modal="true"
           aria-labelledby="sound-experience-title"
         >
-          <div className="sound-experience-content">
+          <section className="mobile-experience-dialog sound-experience-dialog">
+            <p className="mobile-experience-kicker">Sound experience</p>
             <h2 id="sound-experience-title">
-              For the best experience,
-              <br />
-              we recommend enabling sound
+              This portfolio sounds better with music.
             </h2>
-            <div className="sound-experience-actions">
-              <button type="button" onClick={enableSound}>
-                enable sound
+            <p className="mobile-experience-copy">
+              Turn on Touch the sky for the full mood, or keep exploring in silence.
+            </p>
+            <div className="mobile-experience-actions">
+              <button
+                className="mobile-experience-primary"
+                type="button"
+                onClick={enableSound}
+              >
+                Enable sound
               </button>
-              <button type="button" onClick={dismissSoundPrompt}>
-                no sound
+              <button
+                className="mobile-experience-secondary"
+                type="button"
+                onClick={dismissSoundPrompt}
+              >
+                Continue without sound
               </button>
             </div>
-          </div>
+          </section>
         </div>
       )}
       <div className="floating-theme-toggle">
